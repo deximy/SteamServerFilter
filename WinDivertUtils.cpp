@@ -4,9 +4,6 @@
 #include <format>
 
 
-#include "WinDivert/windivert.h"
-
-
 HANDLE InitializeWinDivert(const char* filter)
 {
     HANDLE windivert_handle = WinDivertOpen(
@@ -23,6 +20,31 @@ HANDLE InitializeWinDivert(const char* filter)
 
     std::cout << std::format("[Log] Open the WinDivert device successfully.") << std::endl;
     return windivert_handle;
+}
+
+
+void HandleWinDivertRecv(HANDLE windivert_handle, std::function<void(PWINDIVERT_IPHDR, PWINDIVERT_UDPHDR, PVOID, UINT)> func_handle_packet)
+{
+    auto packet = new unsigned char[WINDIVERT_MTU_MAX];
+    UINT packet_len;
+    WINDIVERT_ADDRESS recv_addr;
+
+    while (true)
+    {
+        // Read a matching packet.
+        if (!WinDivertRecv(windivert_handle, packet, WINDIVERT_MTU_MAX, &packet_len, &recv_addr))
+        {
+            std::cerr << std::format("[ERROR] Failed to read packet. Error code: {}", GetLastError()) << std::endl;
+            continue;
+        }
+
+        PWINDIVERT_IPHDR ip_header;
+        PWINDIVERT_UDPHDR udp_header;
+        PVOID payload;
+        UINT payload_len;
+        WinDivertHelperParsePacket(packet, packet_len, &ip_header, NULL, NULL, NULL, NULL, NULL, &udp_header, &payload, &payload_len, NULL, NULL);
+        func_handle_packet(ip_header, udp_header, payload, payload_len);
+    }
 }
 
 
