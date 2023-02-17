@@ -1,20 +1,21 @@
-// SteamServerFilter.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
+#include <format>
+#include <Windows.h>
+#include <vector>
+
+#include "WinDivert/windivert.h"
+#include "WinDivertUtils.h"
+
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    // Here is the structure of the A2S_Info response packet.
+    // The first five bytes are fixed to be 0xFF, 0xFF, 0xFF, 0xFF, 0x49.
+    // The sixth byte is the version number, currently set to 0x11, which can also be considered fixed for now.
+    // 
+    // That's where the filters come from.
+    HANDLE windivert_handle = InitializeWinDivert("inbound and udp and udp.Payload32[0] == 0xFFFFFFFF and udp.Payload[4] == 0x49 and udp.Payload[5] == 0x11");
+
+    UninitializeWinDivert(windivert_handle);
+    return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
