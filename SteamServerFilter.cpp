@@ -25,6 +25,7 @@ int main()
                 std::cout << "0x" << std::hex << std::uppercase << static_cast<int>(*(static_cast<unsigned char*>(payload) + i)) << " ";
             }
             std::cout << std::endl;
+            return false;
         }
     );
 

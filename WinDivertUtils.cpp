@@ -10,7 +10,7 @@ HANDLE InitializeWinDivert(const char* filter)
         filter,
         WINDIVERT_LAYER_NETWORK,
         0,
-        WINDIVERT_FLAG_RECV_ONLY
+        0
     );
     if (windivert_handle == INVALID_HANDLE_VALUE)
     {
@@ -23,16 +23,16 @@ HANDLE InitializeWinDivert(const char* filter)
 }
 
 
-void HandleWinDivertRecv(HANDLE windivert_handle, std::function<void(PWINDIVERT_IPHDR, PWINDIVERT_UDPHDR, PVOID, UINT)> func_handle_packet)
+void HandleWinDivertRecv(HANDLE windivert_handle, std::function<bool(PWINDIVERT_IPHDR, PWINDIVERT_UDPHDR, PVOID, UINT)> func_handle_packet)
 {
     auto packet = new unsigned char[WINDIVERT_MTU_MAX];
     UINT packet_len;
-    WINDIVERT_ADDRESS recv_addr;
+    WINDIVERT_ADDRESS addr;
 
     while (true)
     {
         // Read a matching packet.
-        if (!WinDivertRecv(windivert_handle, packet, WINDIVERT_MTU_MAX, &packet_len, &recv_addr))
+        if (!WinDivertRecv(windivert_handle, packet, WINDIVERT_MTU_MAX, &packet_len, &addr))
         {
             std::cerr << std::format("[ERROR] Failed to read packet. Error code: {}", GetLastError()) << std::endl;
             continue;
@@ -43,7 +43,15 @@ void HandleWinDivertRecv(HANDLE windivert_handle, std::function<void(PWINDIVERT_
         PVOID payload;
         UINT payload_len;
         WinDivertHelperParsePacket(packet, packet_len, &ip_header, NULL, NULL, NULL, NULL, NULL, &udp_header, &payload, &payload_len, NULL, NULL);
-        func_handle_packet(ip_header, udp_header, payload, payload_len);
+        if (func_handle_packet(ip_header, udp_header, payload, payload_len))
+        {
+            continue;
+        }
+
+        if (!WinDivertSend(windivert_handle, packet, packet_len, NULL, &addr))
+        {
+            std::cerr << std::format("[ERROR] Failed to reinject packet. Error code: {}", GetLastError()) << std::endl;
+        }
     }
 }
 
