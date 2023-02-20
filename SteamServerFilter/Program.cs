@@ -1,4 +1,5 @@
 ﻿using log4net;
+using Microsoft.Win32;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -17,6 +18,25 @@ namespace SteamServerFilter
                 Visible = true,
                 ContextMenuStrip = new(),
             };
+            RegistryKey? registry_key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+            var auto_start_item = new ToolStripMenuItem() {
+                Text = "开机自动启动",
+                Checked = registry_key?.GetValue("SteamServerFilter") == null ? false : true,
+            };
+            auto_start_item.Click += (sender, e) => {
+                auto_start_item.Checked = !auto_start_item.Checked;
+            };
+            auto_start_item.CheckedChanged += (sender, e) => {
+                if (auto_start_item.Checked)
+                {
+                    registry_key?.SetValue("SteamServerFilter", Application.ExecutablePath);
+                }
+                else
+                {
+                    registry_key?.DeleteValue("SteamServerFilter");
+                }
+            };
+            tray_icon.ContextMenuStrip.Items.Add(auto_start_item);
             var exit_item = new ToolStripMenuItem() {
                 Text = "退出",
             };
