@@ -1,6 +1,7 @@
 ﻿using log4net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 using WindivertDotnet;
 using static SteamServerFilter.WinDivertUtils;
 
@@ -10,6 +11,22 @@ namespace SteamServerFilter
     {
         static void Main(string[] args)
         {
+            var tray_icon = new NotifyIcon() {
+                Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath),
+                Text = "SteamServerFilter",
+                Visible = true,
+                ContextMenuStrip = new(),
+            };
+            var exit_item = new ToolStripMenuItem() {
+                Text = "退出",
+            };
+            exit_item.Click += (sender, e) => {
+                UninitializeWinDivert();
+                Application.Exit();
+            };
+            tray_icon.ContextMenuStrip.Items.Add(exit_item);
+            
+
             log4net.Config.XmlConfigurator.Configure();
             var log = LogManager.GetLogger("log");
 
@@ -65,11 +82,8 @@ namespace SteamServerFilter
                     return false;
                 }
             );
-           
 
-            while (true) { }
-
-            UninitializeWinDivert();
+            Application.Run(new ApplicationContext());
         }
     }
 }
