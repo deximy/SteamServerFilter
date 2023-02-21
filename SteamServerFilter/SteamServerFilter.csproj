@@ -22,8 +22,4 @@
     <PackageReference Include="TaskScheduler" Version="2.10.1" />
     <PackageReference Include="WindivertDotnet" Version="1.1.2" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="bin\Debug\net6.0-windows\" />
-  </ItemGroup>
 </Project>
