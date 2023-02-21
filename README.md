@@ -20,7 +20,7 @@
 
 ![.NET 6 desktop runtime](READMEs/.NET6_desktop_runtime.png)
 
-点击你所使用的系统架构（大部分Windows10和Windows11的用户都可以直接点x64，不会有问题）对应的链接，跳转到下载页面：
+点击**x86**对应的链接，跳转到下载页面：
 
 ![.NET 6.0 desktop runtime download page](READMEs/.NET6_desktop_runtime_download_page.png)
 
