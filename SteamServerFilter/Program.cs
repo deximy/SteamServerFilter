@@ -1,6 +1,4 @@
-﻿using Microsoft.Win32.TaskScheduler;
-
-namespace SteamServerFilter
+﻿namespace SteamServerFilter
 {
     class Program
     {
@@ -14,7 +12,7 @@ namespace SteamServerFilter
             };
             var auto_start_item = new ToolStripMenuItem() {
                 Text = "开机自动启动",
-                Checked = TaskService.Instance.GetFolder("\\").Tasks.Any(task => task.Name == "SteamServerFilter Startup"),
+                Checked = StartupService.Enable,
             };
             auto_start_item.Click += (sender, e) => {
                 auto_start_item.Checked = !auto_start_item.Checked;
@@ -22,11 +20,11 @@ namespace SteamServerFilter
             auto_start_item.CheckedChanged += (sender, e) => {
                 if (auto_start_item.Checked)
                 {
-                    EnableAutoRunningWithTaskService();
+                    StartupService.Enable = true;
                 }
                 else
                 {
-                    DisableAutoRunningWithTaskService();
+                    StartupService.Enable = false;
                 }
             };
             tray_icon.ContextMenuStrip.Items.Add(auto_start_item);
@@ -65,33 +63,6 @@ namespace SteamServerFilter
             var inbound_server_name_filter_service = new InboundServerNameFilterService(block_rules_repo);
 
             Application.Run(new ApplicationContext());
-        }
-
-        static void EnableAutoRunningWithTaskService()
-        {
-            TaskDefinition task_definition = TaskService.Instance.NewTask();
-
-            task_definition.RegistrationInfo.Description = "Run SteamServerFilter when system starts";
-            task_definition.Settings.Enabled = true;
-            task_definition.Principal.RunLevel = TaskRunLevel.Highest;
-
-            LogonTrigger trigger = (LogonTrigger)task_definition.Triggers.AddNew(TaskTriggerType.Logon);
-            trigger.Enabled = true;
-            trigger.Delay = TimeSpan.FromSeconds(30);
-
-            ExecAction action = (ExecAction)task_definition.Actions.AddNew(TaskActionType.Execute);
-            action.Path = $"\"{Application.ExecutablePath}\"";
-
-            TaskService.Instance.RootFolder.RegisterTaskDefinition("SteamServerFilter Startup", task_definition);
-        }
-
-        static void DisableAutoRunningWithTaskService()
-        {
-            var folder = TaskService.Instance.GetFolder("\\");
-            if (folder.Tasks.Any(task => task.Name == "SteamServerFilter Startup"))
-            {
-                folder.DeleteTask("SteamServerFilter Startup");
-            }
         }
     }
 }
