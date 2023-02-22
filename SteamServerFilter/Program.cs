@@ -43,7 +43,7 @@
                 ContextMenuStrip = new(),
             };
             tray_icon.ContextMenuStrip.Items.Add(InitStartupSettingItem());
-            tray_icon.ContextMenuStrip.Items.Add(InitExitItem());
+            tray_icon.ContextMenuStrip.Items.Add(InitExitItem(tray_icon));
         }
 
         static ToolStripMenuItem InitStartupSettingItem()
@@ -68,12 +68,13 @@
             return startup_setting_item;
         }
 
-        static ToolStripMenuItem InitExitItem()
+        static ToolStripMenuItem InitExitItem(NotifyIcon tray_icon)
         {
             var exit_item = new ToolStripMenuItem() {
                 Text = "退出",
             };
             exit_item.Click += (sender, e) => {
+                tray_icon.Visible = false;
                 Application.Exit();
             };
             return exit_item;
