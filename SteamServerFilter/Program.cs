@@ -43,6 +43,7 @@
                 ContextMenuStrip = new(),
             };
             tray_icon.ContextMenuStrip.Items.Add(InitStartupSettingItem());
+            tray_icon.ContextMenuStrip.Items.Add(InitStrictModeItem());
             tray_icon.ContextMenuStrip.Items.Add(InitExitItem(tray_icon));
         }
 
@@ -66,6 +67,28 @@
                 }
             };
             return startup_setting_item;
+        }
+
+        static ToolStripMenuItem InitStrictModeItem()
+        {
+            var strict_mode_item = new ToolStripMenuItem() {
+                Text = "严格模式",
+                Checked = true,
+            };
+            strict_mode_item.Click += (sender, e) => {
+                strict_mode_item.Checked = !strict_mode_item.Checked;
+            };
+            strict_mode_item.CheckedChanged += (sender, e) => {
+                if (strict_mode_item.Checked)
+                {
+                    throw new NotImplementedException();
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            };
+            return strict_mode_item;
         }
 
         static ToolStripMenuItem InitExitItem(NotifyIcon tray_icon)
