@@ -1,9 +1,6 @@
-﻿using log4net;
-using Microsoft.Win32;
-using Microsoft.Win32.TaskScheduler;
+﻿using Microsoft.Win32.TaskScheduler;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 using WindivertDotnet;
 using static SteamServerFilter.WinDivertUtils;
 
@@ -45,13 +42,9 @@ namespace SteamServerFilter
                 Application.Exit();
             };
             tray_icon.ContextMenuStrip.Items.Add(exit_item);
-            
 
-            log4net.Config.XmlConfigurator.Configure();
-            var log = LogManager.GetLogger("log");
-
-            log.Info("=================================================");
-            log.Info("Program starts.");
+            LogService.Info("=================================================");
+            LogService.Info("Program starts.");
 
             var block_rules_file_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "block_rules.txt");
             if (!File.Exists(block_rules_file_path))
@@ -73,7 +66,7 @@ namespace SteamServerFilter
                     regex_rules_list.Add(regex);
                 }
             }
-            log.Info($"{regex_rules_list.Count} rules have been read.");
+            LogService.Info($"{regex_rules_list.Count} rules have been read.");
 
             // Here is the structure of the A2S_Info response packet.
             // The first five bytes are fixed to be 0xFF, 0xFF, 0xFF, 0xFF, 0x49.
@@ -94,7 +87,7 @@ namespace SteamServerFilter
                     {
                         if (rule.IsMatch(server_name))
                         {
-                            log.Info($"Block server with name: {server_name}");
+                            LogService.Info($"Block server with name: {server_name}");
                             return true;
                         }
                     }
