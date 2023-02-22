@@ -4,38 +4,6 @@
     {
         static void Main(string[] args)
         {
-            var tray_icon = new NotifyIcon() {
-                Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath),
-                Text = "SteamServerFilter",
-                Visible = true,
-                ContextMenuStrip = new(),
-            };
-            var auto_start_item = new ToolStripMenuItem() {
-                Text = "开机自动启动",
-                Checked = StartupService.Enable,
-            };
-            auto_start_item.Click += (sender, e) => {
-                auto_start_item.Checked = !auto_start_item.Checked;
-            };
-            auto_start_item.CheckedChanged += (sender, e) => {
-                if (auto_start_item.Checked)
-                {
-                    StartupService.Enable = true;
-                }
-                else
-                {
-                    StartupService.Enable = false;
-                }
-            };
-            tray_icon.ContextMenuStrip.Items.Add(auto_start_item);
-            var exit_item = new ToolStripMenuItem() {
-                Text = "退出",
-            };
-            exit_item.Click += (sender, e) => {
-                Application.Exit();
-            };
-            tray_icon.ContextMenuStrip.Items.Add(exit_item);
-            
             LogService.Info("=================================================");
             LogService.Info("Program starts.");
             
@@ -62,7 +30,53 @@
 
             var inbound_server_name_filter_service = new InboundServerNameFilterService(block_rules_repo);
 
+            InitTrayContextMenu();
             Application.Run(new ApplicationContext());
+        }
+
+        static void InitTrayContextMenu()
+        {
+            var tray_icon = new NotifyIcon() {
+                Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath),
+                Text = "SteamServerFilter",
+                Visible = true,
+                ContextMenuStrip = new(),
+            };
+            tray_icon.ContextMenuStrip.Items.Add(InitStartupSettingItem());
+            tray_icon.ContextMenuStrip.Items.Add(InitExitItem());
+        }
+
+        static ToolStripMenuItem InitStartupSettingItem()
+        {
+            var startup_setting_item = new ToolStripMenuItem() {
+                Text = "开机自动启动",
+                Checked = StartupService.Enable,
+            };
+            startup_setting_item.Click += (sender, e) => {
+                startup_setting_item.Checked = !startup_setting_item.Checked;
+            };
+            startup_setting_item.CheckedChanged += (sender, e) => {
+                if (startup_setting_item.Checked)
+                {
+                    StartupService.Enable = true;
+                }
+                else
+                {
+                    StartupService.Enable = false;
+                }
+            };
+            return startup_setting_item;
+        }
+
+        static ToolStripMenuItem InitExitItem()
+        {
+            var exit_item = new ToolStripMenuItem() {
+                Text = "退出",
+            };
+            exit_item.Click += (sender, e) => {
+                Application.Exit();
+            };
+            return exit_item;
         }
     }
 }
