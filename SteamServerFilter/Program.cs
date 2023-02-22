@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32.TaskScheduler;
 using System.Text;
-using System.Text.RegularExpressions;
 using WindivertDotnet;
 using static SteamServerFilter.WinDivertUtils;
 
@@ -52,7 +51,7 @@ namespace SteamServerFilter
                 File.Create(block_rules_file_path).Close();
             }
 
-            List<Regex> regex_rules_list = new List<Regex>();
+            var block_rules_repo = new BlockRulesRepository();
             using (StreamReader stream_reader = new StreamReader(block_rules_file_path))
             {
                 while (!stream_reader.EndOfStream)
@@ -62,11 +61,10 @@ namespace SteamServerFilter
                     {
                         continue;
                     }
-                    Regex regex = new Regex(rule);
-                    regex_rules_list.Add(regex);
+                    block_rules_repo.Add(rule);
                 }
             }
-            LogService.Info($"{regex_rules_list.Count} rules have been read.");
+            LogService.Info($"{block_rules_repo.Get().Count} rules have been read.");
 
             // Here is the structure of the A2S_Info response packet.
             // The first five bytes are fixed to be 0xFF, 0xFF, 0xFF, 0xFF, 0x49.
@@ -83,7 +81,7 @@ namespace SteamServerFilter
                 (packet) => {
                     var server_name = Encoding.UTF8.GetString(packet.DataSpan.Slice(6, packet.DataSpan.IndexOf((byte)0x00) - 6));
                     
-                    foreach (var rule in regex_rules_list)
+                    foreach (var rule in block_rules_repo.Get())
                     {
                         if (rule.IsMatch(server_name))
                         {
