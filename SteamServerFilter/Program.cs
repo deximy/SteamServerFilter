@@ -1,7 +1,4 @@
 ﻿using Microsoft.Win32.TaskScheduler;
-using System.Text;
-using WindivertDotnet;
-using static SteamServerFilter.WinDivertUtils;
 
 namespace SteamServerFilter
 {
@@ -37,14 +34,13 @@ namespace SteamServerFilter
                 Text = "退出",
             };
             exit_item.Click += (sender, e) => {
-                UninitializeWinDivert();
                 Application.Exit();
             };
             tray_icon.ContextMenuStrip.Items.Add(exit_item);
-
+            
             LogService.Info("=================================================");
             LogService.Info("Program starts.");
-
+            
             var block_rules_file_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "block_rules.txt");
             if (!File.Exists(block_rules_file_path))
             {
@@ -66,33 +62,7 @@ namespace SteamServerFilter
             }
             LogService.Info($"{block_rules_repo.Get().Count} rules have been read.");
 
-            // Here is the structure of the A2S_Info response packet.
-            // The first five bytes are fixed to be 0xFF, 0xFF, 0xFF, 0xFF, 0x49.
-            // The sixth byte is the version number, currently set to 0x11, which can also be considered fixed for now.
-            // 
-            // That's where the filters come from.
-            InitializeWinDivert(
-                Filter.True
-                    .And(f => f.Network.Inbound)
-                    .And(f => f.IsUdp)
-                    .And(f => f.Udp.Payload32[0] == 0xFFFFFFFF)
-                    .And(f => f.Udp.Payload[4] == 0x49)
-                    .And(f => f.Udp.Payload[5] == 0x11),
-                (packet) => {
-                    var server_name = Encoding.UTF8.GetString(packet.DataSpan.Slice(6, packet.DataSpan.IndexOf((byte)0x00) - 6));
-                    
-                    foreach (var rule in block_rules_repo.Get())
-                    {
-                        if (rule.IsMatch(server_name))
-                        {
-                            LogService.Info($"Block server with name: {server_name}");
-                            return true;
-                        }
-                    }
-                    
-                    return false;
-                }
-            );
+            var inbound_server_name_filter_service = new InboundServerNameFilterService(block_rules_repo);
 
             Application.Run(new ApplicationContext());
         }
