@@ -28,7 +28,7 @@
             }
             LogService.Info($"{block_rules_repo.Get().Count} rules have been read.");
 
-            var inbound_server_name_filter_service = new InboundServerNameFilterService(block_rules_repo);
+            new InboundServerNameFilterService(block_rules_repo);
 
             InitTrayContextMenu();
             Application.Run(new ApplicationContext());
