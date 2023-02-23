@@ -83,10 +83,5 @@ namespace SteamServerFilter
                 }
             );
         }
-
-        ~InboundServerNameFilterService()
-        {
-            windivert_instance_.Close();
-        }
     }
 }
