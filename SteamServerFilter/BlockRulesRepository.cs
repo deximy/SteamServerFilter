@@ -11,9 +11,9 @@ namespace SteamServerFilter
             block_rules_list_ = new();
         }
 
-        public IReadOnlyList<Regex> Get()
+        public IReadOnlyCollection<Regex> Get()
         {
-            return block_rules_list_.AsReadOnly();
+            return block_rules_list_;
         }
 
         public void Add(Regex rule)
