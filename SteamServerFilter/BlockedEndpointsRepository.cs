@@ -28,5 +28,15 @@ namespace SteamServerFilter
         {
             Add(new(address, port));
         }
+
+        public bool Contains(IPEndPoint endpoint)
+        {
+            return blocked_endpoints_list_.Contains(endpoint);
+        }
+
+        public bool Contains(IPAddress address, ushort port)
+        {
+            return Contains(new IPEndPoint(address, port));
+        }
     }
 }

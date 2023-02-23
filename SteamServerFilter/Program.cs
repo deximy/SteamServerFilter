@@ -6,14 +6,16 @@
         {
             LogService.Info("=================================================");
             LogService.Info("Program starts.");
-            
+
+            var block_rules_repo = new BlockRulesRepository();
+            var blocked_endpoints_repo = new BlockedEndpointsRepository();
+
             var block_rules_file_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "block_rules.txt");
             if (!File.Exists(block_rules_file_path))
             {
                 File.Create(block_rules_file_path).Close();
             }
 
-            var block_rules_repo = new BlockRulesRepository();
             using (StreamReader stream_reader = new StreamReader(block_rules_file_path))
             {
                 while (!stream_reader.EndOfStream)
@@ -28,7 +30,7 @@
             }
             LogService.Info($"{block_rules_repo.Get().Count} rules have been read.");
 
-            new InboundServerNameFilterService(block_rules_repo);
+            new InboundServerNameFilterService(block_rules_repo, blocked_endpoints_repo);
 
             InitTrayContextMenu();
             Application.Run(new ApplicationContext());
