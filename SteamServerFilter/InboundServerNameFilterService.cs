@@ -103,7 +103,16 @@ namespace SteamServerFilter
                                     100,
                                     0
                                 );
-                                
+                                _ = Task.Run(
+                                    async () => {
+                                        // This is an arbitrary argument ;)
+                                        // As is known to all, the connection will time out after 1 min.
+                                        // Just sleep additional 1 min in case of accident.
+                                        // Then close the handle to release resources.
+                                        await Task.Delay(2 * 60 * 1000);
+                                        temporary_block_windivert.Close();
+                                    }
+                                );
                                 LogService.Info($"Block connection to endpoint: {server_endpoint.Address.MapToIPv4()}:{server_endpoint.Port}");
                             }
                         }
