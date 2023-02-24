@@ -41,8 +41,6 @@ namespace SteamServerFilter
 
             Task.Run(
                 async () => {
-                    WinDivert? urgent_block_windivert = null;
-
                     while (true)
                     {
                         await windivert_instance_.RecvAsync(packet_, address_);
@@ -96,7 +94,7 @@ namespace SteamServerFilter
                                 // Block ALL CONNECTION TO THIS ENDPOINT.
                                 // This is an urgent block as we are connecting to the server.
                                 // If we don't do like that, we will connect to server completely.
-                                urgent_block_windivert = new WinDivert(
+                                var temporary_block_windivert = new WinDivert(
                                     Filter.True
                                         .And(f => f.IsUdp)
                                         .And(f => f.Network.RemoteAddr == server_endpoint.Address.MapToIPv4().ToString())
@@ -105,7 +103,7 @@ namespace SteamServerFilter
                                     100,
                                     0
                                 );
-
+                                
                                 LogService.Info($"Block connection to endpoint: {server_endpoint.Address.MapToIPv4()}:{server_endpoint.Port}");
                             }
                         }
