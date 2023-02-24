@@ -2,13 +2,22 @@
 {
     class Program
     {
+        private static readonly BlockRulesRepository block_rules_repo_;
+        private static readonly BlockedEndpointsRepository blocked_endpoints_repo_;
+
+        private static InboundServerNameFilterService? inbound_server_name_filter_service_;
+        private static OutboundRequestFilterService? outbount_request_filter_service_;
+
+        static Program()
+        {
+            block_rules_repo_ = new BlockRulesRepository();
+            blocked_endpoints_repo_ = new BlockedEndpointsRepository();
+        }
+
         static void Main(string[] args)
         {
             LogService.Info("=================================================");
             LogService.Info("Program starts.");
-
-            var block_rules_repo = new BlockRulesRepository();
-            var blocked_endpoints_repo = new BlockedEndpointsRepository();
 
             var block_rules_file_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "block_rules.txt");
             if (!File.Exists(block_rules_file_path))
@@ -25,13 +34,13 @@
                     {
                         continue;
                     }
-                    block_rules_repo.Add(rule);
+                    block_rules_repo_.Add(rule);
                 }
             }
-            LogService.Info($"{block_rules_repo.Get().Count} rules have been read.");
+            LogService.Info($"{block_rules_repo_.Get().Count} rules have been read.");
 
-            new OutboundRequestFilterService(blocked_endpoints_repo);
-            new InboundServerNameFilterService(block_rules_repo, blocked_endpoints_repo);
+
+            inbound_server_name_filter_service_ = new InboundServerNameFilterService(block_rules_repo_, blocked_endpoints_repo_);
 
             InitTrayContextMenu();
             Application.Run(new ApplicationContext());
@@ -74,6 +83,7 @@
 
         static ToolStripMenuItem InitStrictModeItem()
         {
+            outbount_request_filter_service_ = new OutboundRequestFilterService(blocked_endpoints_repo_);
             var strict_mode_item = new ToolStripMenuItem() {
                 Text = "严格模式",
                 Checked = true,
@@ -84,11 +94,17 @@
             strict_mode_item.CheckedChanged += (sender, e) => {
                 if (strict_mode_item.Checked)
                 {
-                    throw new NotImplementedException();
+                    if (outbount_request_filter_service_ == null)
+                    {
+                        outbount_request_filter_service_ = new OutboundRequestFilterService(blocked_endpoints_repo_);
+                    }
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    if (outbount_request_filter_service_ != null)
+                    {
+                        outbount_request_filter_service_ = null;
+                    }
                 }
             };
             return strict_mode_item;
