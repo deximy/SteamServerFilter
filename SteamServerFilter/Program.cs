@@ -42,6 +42,7 @@
 
             sniffing_server_name_service_ = new SniffingServerNameService();
             inbound_server_name_filter_service_ = new InboundServerNameFilterService(block_rules_repo_, blocked_endpoints_repo_, sniffing_server_name_service_);
+            outbount_request_filter_service_ = new OutboundRequestFilterService(blocked_endpoints_repo_, sniffing_server_name_service_);
 
             InitTrayContextMenu();
             Application.Run(new ApplicationContext());
@@ -84,7 +85,7 @@
 
         static ToolStripMenuItem InitStrictModeItem()
         {
-            outbount_request_filter_service_ = new OutboundRequestFilterService(blocked_endpoints_repo_, sniffing_server_name_service_);
+            outbount_request_filter_service_?.Start();
             var strict_mode_item = new ToolStripMenuItem() {
                 Text = "严格模式",
                 Checked = true,
@@ -95,17 +96,11 @@
             strict_mode_item.CheckedChanged += (sender, e) => {
                 if (strict_mode_item.Checked)
                 {
-                    if (outbount_request_filter_service_ == null)
-                    {
-                        outbount_request_filter_service_ = new OutboundRequestFilterService(blocked_endpoints_repo_, sniffing_server_name_service_);
-                    }
+                    outbount_request_filter_service_?.Start();
                 }
                 else
                 {
-                    if (outbount_request_filter_service_ != null)
-                    {
-                        outbount_request_filter_service_ = null;
-                    }
+                    outbount_request_filter_service_?.Pause();
                 }
             };
             return strict_mode_item;

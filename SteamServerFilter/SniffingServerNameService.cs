@@ -46,9 +46,9 @@ namespace SteamServerFilter
             return ((IPEndPoint?)sniffing_socket_.Client.LocalEndPoint)?.Port ?? 0;
         }
 
-        public async Task<int> QueryServerName(IPEndPoint endpoint)
+        public async Task<int> QueryServerName(IPEndPoint endpoint, CancellationToken cancellation_token = default)
         {
-            return await sniffing_socket_.SendAsync(a2s_query_data_, endpoint);
+            return await sniffing_socket_.SendAsync(a2s_query_data_, endpoint, cancellation_token);
         }
     }
 }
