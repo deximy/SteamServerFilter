@@ -7,6 +7,7 @@
 
         private static InboundServerNameFilterService? inbound_server_name_filter_service_;
         private static OutboundRequestFilterService? outbount_request_filter_service_;
+        private static SniffingServerNameService? sniffing_server_name_service_;
 
         static Program()
         {
@@ -39,8 +40,8 @@
             }
             LogService.Info($"{block_rules_repo_.Get().Count} rules have been read.");
 
-
-            inbound_server_name_filter_service_ = new InboundServerNameFilterService(block_rules_repo_, blocked_endpoints_repo_);
+            sniffing_server_name_service_ = new SniffingServerNameService();
+            inbound_server_name_filter_service_ = new InboundServerNameFilterService(block_rules_repo_, blocked_endpoints_repo_, sniffing_server_name_service_);
 
             InitTrayContextMenu();
             Application.Run(new ApplicationContext());
@@ -83,7 +84,7 @@
 
         static ToolStripMenuItem InitStrictModeItem()
         {
-            outbount_request_filter_service_ = new OutboundRequestFilterService(blocked_endpoints_repo_);
+            outbount_request_filter_service_ = new OutboundRequestFilterService(blocked_endpoints_repo_, sniffing_server_name_service_);
             var strict_mode_item = new ToolStripMenuItem() {
                 Text = "严格模式",
                 Checked = true,
@@ -96,7 +97,7 @@
                 {
                     if (outbount_request_filter_service_ == null)
                     {
-                        outbount_request_filter_service_ = new OutboundRequestFilterService(blocked_endpoints_repo_);
+                        outbount_request_filter_service_ = new OutboundRequestFilterService(blocked_endpoints_repo_, sniffing_server_name_service_);
                     }
                 }
                 else

@@ -12,13 +12,19 @@ namespace SteamServerFilter
 
         private readonly BlockRulesRepository block_rules_repo_;
         private readonly BlockedEndpointsRepository blocked_endpoints_repo_;
+        private readonly SniffingServerNameService sniffing_server_name_service_;
 
-        public InboundServerNameFilterService(BlockRulesRepository block_rules_repo, BlockedEndpointsRepository blocked_endpoints_repo)
+        public InboundServerNameFilterService(
+            BlockRulesRepository block_rules_repo,
+            BlockedEndpointsRepository blocked_endpoints_repo,
+            SniffingServerNameService sniffing_server_name_service
+        )
         {
             block_rules_repo_ = block_rules_repo;
             blocked_endpoints_repo_ = blocked_endpoints_repo;
+            sniffing_server_name_service_ = sniffing_server_name_service;
 
-            // Here is the structure of the A2S_Info response packet.
+            // Here is the structure of the A2S_INFO response packet.
             // The first five bytes are fixed to be 0xFF, 0xFF, 0xFF, 0xFF, 0x49.
             // 
             // That's where the filters come from.
@@ -35,27 +41,32 @@ namespace SteamServerFilter
 
             Task.Run(
                 async () => {
+                    WinDivert? urgent_block_windivert = null;
+
                     while (true)
                     {
                         await windivert_instance_.RecvAsync(packet_, address_);
 
                         var parsed_packet = packet_.GetParseResult();
 
-                        IPEndPoint? endpoint = null;
+                        IPEndPoint? server_endpoint = null;
+                        int? local_port = null;
                         unsafe
                         {
-                            endpoint = new IPEndPoint(parsed_packet.IPV4Header->SrcAddr, parsed_packet.UdpHeader->SrcPort);
-                            if (endpoint == null)
+                            server_endpoint = new IPEndPoint(parsed_packet.IPV4Header->SrcAddr, parsed_packet.UdpHeader->SrcPort);
+                            if (server_endpoint == null)
                             {
                                 LogService.Error("Error occurred when reading server endpoint. Please contact developer for further help.");
                                 LogService.Error($"IPV4Header->SrcAddr: {parsed_packet.IPV4Header->SrcAddr.MapToIPv4()}, UdpHeader->SrcPort: {parsed_packet.UdpHeader->SrcPort}");
                                 LogService.Debug($"parsed_packet.IPV4Header: {(int)parsed_packet.IPV4Header}");
                                 continue;
                             }
+
+                            local_port = parsed_packet.UdpHeader->DstPort;
                         }
-                        if (blocked_endpoints_repo_.Contains(endpoint))
+                        if (blocked_endpoints_repo_.Contains(server_endpoint))
                         {
-                            LogService.Debug($"Block incoming traffic from an endpoint in black list: {endpoint.Address.MapToIPv4()}:{endpoint.Port}");
+                            LogService.Debug($"Block incoming traffic from an endpoint in black list: {server_endpoint.Address.MapToIPv4()}:{server_endpoint.Port}");
                             continue;
                         }
 
@@ -66,7 +77,7 @@ namespace SteamServerFilter
                                 (i) => {
                                     if (i.IsMatch(server_name))
                                     {
-                                        blocked_endpoints_repo_.Add(endpoint);
+                                        blocked_endpoints_repo_.Add(server_endpoint);
                                         LogService.Info($"Block server with name: {server_name}");
                                         return true;
                                     }
@@ -76,6 +87,27 @@ namespace SteamServerFilter
                         )
                         {
                             await windivert_instance_.SendAsync(packet_, address_);
+                        }
+                        else
+                        {
+                            if (sniffing_server_name_service_.GetSocketPort() == local_port)
+                            {
+                                // We sent a query to the endpoint whose response matches the rules.
+                                // Block ALL CONNECTION TO THIS ENDPOINT.
+                                // This is an urgent block as we are connecting to the server.
+                                // If we don't do like that, we will connect to server completely.
+                                urgent_block_windivert = new WinDivert(
+                                    Filter.True
+                                        .And(f => f.IsUdp)
+                                        .And(f => f.Network.RemoteAddr == server_endpoint.Address.MapToIPv4().ToString())
+                                        .And(f => f.Network.RemotePort == server_endpoint.Port),
+                                    WinDivertLayer.Network,
+                                    100,
+                                    0
+                                );
+
+                                LogService.Info($"Block connection to endpoint: {server_endpoint.Address.MapToIPv4()}:{server_endpoint.Port}");
+                            }
                         }
                     }
                 }
