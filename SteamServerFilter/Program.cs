@@ -30,6 +30,7 @@
             }
             LogService.Info($"{block_rules_repo.Get().Count} rules have been read.");
 
+            new OutboundRequestFilterService(blocked_endpoints_repo);
             new InboundServerNameFilterService(block_rules_repo, blocked_endpoints_repo);
 
             InitTrayContextMenu();
