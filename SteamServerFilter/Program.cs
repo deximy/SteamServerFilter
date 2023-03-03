@@ -1,4 +1,6 @@
-﻿namespace SteamServerFilter
+﻿using System.Diagnostics;
+
+namespace SteamServerFilter
 {
     class Program
     {
@@ -45,6 +47,7 @@
                     InitStartupSettingItem(),
                     InitStrictModeItem(),
                     InitReloadRulesItem(),
+                    InitOpenContainerFolderItem(),
                     InitExitItem(tray_icon)
                 }
             );
@@ -105,6 +108,17 @@
                 rules_reader_service_?.ReadRulesFromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "block_rules.txt"));
             };
             return reload_rules_item;
+        }
+
+        static ToolStripMenuItem InitOpenContainerFolderItem()
+        {
+            var open_container_folder = new ToolStripMenuItem() {
+                Text = "打开所在文件夹",
+            };
+            open_container_folder.Click += (sender, e) => {
+                Process.Start("explorer.exe", AppDomain.CurrentDomain.BaseDirectory);
+            };
+            return open_container_folder;
         }
 
         static ToolStripMenuItem InitExitItem(NotifyIcon tray_icon)
