@@ -42,6 +42,7 @@
             };
             tray_icon.ContextMenuStrip.Items.Add(InitStartupSettingItem());
             tray_icon.ContextMenuStrip.Items.Add(InitStrictModeItem());
+            tray_icon.ContextMenuStrip.Items.Add(InitReloadRulesItem());
             tray_icon.ContextMenuStrip.Items.Add(InitExitItem(tray_icon));
         }
 
@@ -88,6 +89,18 @@
                 }
             };
             return strict_mode_item;
+        }
+
+        static ToolStripMenuItem InitReloadRulesItem()
+        {
+            var reload_rules_item = new ToolStripMenuItem() {
+                Text = "重载所有规则",
+            };
+            reload_rules_item.Click += (sender, e) => {
+                block_rules_repo_.Clear();
+                rules_reader_service_?.ReadRulesFromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "block_rules.txt"));
+            };
+            return reload_rules_item;
         }
 
         static ToolStripMenuItem InitExitItem(NotifyIcon tray_icon)

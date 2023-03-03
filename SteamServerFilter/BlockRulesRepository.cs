@@ -23,5 +23,10 @@ namespace SteamServerFilter
                 block_rules_list_.Add(new Regex(rule));
             }
         }
+
+        public void Clear()
+        {
+            block_rules_list_.Clear();
+        }
     }
 }
