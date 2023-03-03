@@ -40,10 +40,14 @@
                 Visible = true,
                 ContextMenuStrip = new(),
             };
-            tray_icon.ContextMenuStrip.Items.Add(InitStartupSettingItem());
-            tray_icon.ContextMenuStrip.Items.Add(InitStrictModeItem());
-            tray_icon.ContextMenuStrip.Items.Add(InitReloadRulesItem());
-            tray_icon.ContextMenuStrip.Items.Add(InitExitItem(tray_icon));
+            tray_icon.ContextMenuStrip.Items.AddRange(
+                new[] {
+                    InitStartupSettingItem(),
+                    InitStrictModeItem(),
+                    InitReloadRulesItem(),
+                    InitExitItem(tray_icon)
+                }
+            );
         }
 
         static ToolStripMenuItem InitStartupSettingItem()
