@@ -8,6 +8,7 @@
         private static InboundServerNameFilterService? inbound_server_name_filter_service_;
         private static OutboundRequestFilterService? outbount_request_filter_service_;
         private static SniffingServerNameService? sniffing_server_name_service_;
+        private static RulesReaderService? rules_reader_service_;
 
         static Program()
         {
@@ -20,25 +21,8 @@
             LogService.Info("=================================================");
             LogService.Info("Program starts.");
 
-            var block_rules_file_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "block_rules.txt");
-            if (!File.Exists(block_rules_file_path))
-            {
-                File.Create(block_rules_file_path).Close();
-            }
-
-            using (StreamReader stream_reader = new StreamReader(block_rules_file_path))
-            {
-                while (!stream_reader.EndOfStream)
-                {
-                    string? rule = stream_reader.ReadLine();
-                    if (string.IsNullOrWhiteSpace(rule))
-                    {
-                        continue;
-                    }
-                    block_rules_repo_.Add(rule);
-                }
-            }
-            LogService.Info($"{block_rules_repo_.Get().Count} rules have been read.");
+            rules_reader_service_ = new RulesReaderService(block_rules_repo_);
+            rules_reader_service_.TryReadRulesFromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "block_rules.txt"));
 
             sniffing_server_name_service_ = new SniffingServerNameService();
             inbound_server_name_filter_service_ = new InboundServerNameFilterService(block_rules_repo_, blocked_endpoints_repo_, sniffing_server_name_service_);
