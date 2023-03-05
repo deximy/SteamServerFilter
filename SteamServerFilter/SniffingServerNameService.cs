@@ -31,7 +31,7 @@ namespace SteamServerFilter
                     while (true)
                     {
                         var response = await sniffing_socket_.ReceiveAsync();
-                        if (response.Buffer.Length == 9 && response.Buffer.SequenceEqual(a2s_query_challange_prefix_))
+                        if (response.Buffer.Length == 9 && response.Buffer.Take(5).SequenceEqual(a2s_query_challange_prefix_))
                         {
                             var challange = new ArraySegment<byte>(response.Buffer, response.Buffer.Length - 4, 4);
                             await sniffing_socket_.SendAsync(a2s_query_data_.Concat(challange).ToArray(), response.RemoteEndPoint);
