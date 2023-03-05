@@ -81,9 +81,18 @@ namespace SteamServerFilter
                             // So drop all packets to block the connection.
                             // This won't help if the server block A2S_INFO query.
                             // We must find some other way to block them.
-                            await sniffing_server_name_service_.QueryServerName(endpoint, cancellation_token_source_.Token);
                             LogService.Debug($"Detected an unknown endpoint: {endpoint.Address.MapToIPv4()}:{endpoint.Port}");
 
+                            var sent_byte_count = await sniffing_server_name_service_.QueryServerName(endpoint, cancellation_token_source_.Token);
+                            if (sent_byte_count == 0)
+                            {
+                                LogService.Error($"Querying server infomation failed. Endpoint: {endpoint.Address.MapToIPv4()}:{endpoint.Port}");
+                            }
+                            else
+                            {
+                                LogService.Debug($"Querying server infomation succeeded. Waiting for response. Endpoint {endpoint.Address.MapToIPv4()}:{endpoint.Port}");
+                            }
+                            
                             await windivert_instance_.SendAsync(packet_, address_, cancellation_token_source_.Token);
                         }
                     }
