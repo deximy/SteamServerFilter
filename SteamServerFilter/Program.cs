@@ -4,6 +4,8 @@ namespace SteamServerFilter
 {
     class Program
     {
+        public static readonly string version = "1.4.0";
+
         private static readonly BlockRulesRepository block_rules_repo_;
         private static readonly BlockedEndpointsRepository blocked_endpoints_repo_;
 
@@ -21,7 +23,7 @@ namespace SteamServerFilter
         static void Main(string[] args)
         {
             LogService.Info("=================================================");
-            LogService.Info("Program starts.");
+            LogService.Info($"Program starts. Current version: {version}");
 
             rules_reader_service_ = new RulesReaderService(block_rules_repo_);
             rules_reader_service_.TryReadRulesFromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "block_rules.txt"));
@@ -38,7 +40,7 @@ namespace SteamServerFilter
         {
             var tray_icon = new NotifyIcon() {
                 Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath),
-                Text = "SteamServerFilter",
+                Text = $"SteamServerFilter {version}",
                 Visible = true,
                 ContextMenuStrip = new(),
             };
