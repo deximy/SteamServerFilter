@@ -40,7 +40,7 @@
 
 ![steam_server_filter_download_page](READMEs/steam_server_filter_download_page.png)
 
-点击最新版的压缩包进行下载。
+点击最新版的、名为`SteamServerFilter.zip`压缩包进行下载。
 
 ### 运行
 
