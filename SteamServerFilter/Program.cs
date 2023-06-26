@@ -13,6 +13,7 @@ namespace SteamServerFilter
         private static OutboundRequestFilterService? outbount_request_filter_service_;
         private static SniffingServerNameService? sniffing_server_name_service_;
         private static RulesReaderService? rules_reader_service_;
+        public static ProcessMode? processmode;
 
         static Program()
         {
@@ -24,6 +25,10 @@ namespace SteamServerFilter
         {
             LogService.Info("=================================================");
             LogService.Info($"Program starts. Current version: {version}");
+
+            processmode = new ProcessMode();
+            processmode.read_processnames_from_file(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "process_names.txt"));
+            LogService.Info(processmode.ToString());
 
             rules_reader_service_ = new RulesReaderService(block_rules_repo_);
             rules_reader_service_.TryReadRulesFromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "block_rules.txt"));
@@ -48,6 +53,7 @@ namespace SteamServerFilter
                 new[] {
                     InitStartupSettingItem(),
                     InitStrictModeItem(),
+                    InitProcessItem(),
                     InitReloadRulesItem(),
                     InitOpenContainerFolderItem(),
                     InitExitItem(tray_icon)
@@ -133,6 +139,32 @@ namespace SteamServerFilter
                 Application.Exit();
             };
             return exit_item;
+        }
+
+        static ToolStripMenuItem InitProcessItem()
+        {
+            var process_item = new ToolStripMenuItem()
+            {
+                Text = "进程模式",
+                Checked = true
+            };
+            process_item.Click += (sender, e) => {
+                process_item.Checked = !process_item.Checked;
+            };
+            process_item.CheckedChanged += (sender, e) => {
+                if (processmode != null)
+                {
+                    if (process_item.Checked)
+                    {
+                        processmode.Enabled = true;
+                    }
+                    else
+                    {
+                        processmode.Enabled = false;
+                    }
+                }
+            };
+            return process_item;
         }
     }
 }

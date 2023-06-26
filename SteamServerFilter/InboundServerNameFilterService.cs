@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Text;
 using WindivertDotnet;
 
@@ -44,6 +45,7 @@ namespace SteamServerFilter
                     while (true)
                     {
                         await windivert_instance_.RecvAsync(packet_, address_);
+                        Program.processmode?.check_process();
 
                         var parsed_packet = packet_.GetParseResult();
 
@@ -72,14 +74,18 @@ namespace SteamServerFilter
                         var server_name = Encoding.UTF8.GetString(parsed_packet.DataSpan.Slice(6, parsed_packet.DataSpan.IndexOf((byte)0x00) - 6));
                         if (
                             !block_rules_repo_.Get().Any(
-                                (i) => {
-                                    if (i.IsMatch(server_name))
-                                    {
-                                        blocked_endpoints_repo_.Add(server_endpoint);
-                                        LogService.Info($"Block server with name: {server_name}");
-                                        return true;
-                                    }
-                                    return false;
+                        (i) => {
+                            if (i.IsMatch(server_name) && Program.processmode.ProcessExists == true)
+                            {
+                                blocked_endpoints_repo_.Add(server_endpoint);
+                                LogService.Info($"Block server with name: {server_name}");
+                                return true;
+                            }
+                            if (Program.processmode.ProcessExists == false)
+                            {
+                                blocked_endpoints_repo_.Clear();
+                            }
+                            return false;
                                 }
                             )
                         )

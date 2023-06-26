@@ -38,5 +38,10 @@ namespace SteamServerFilter
         {
             return Contains(new IPEndPoint(address, port));
         }
+
+        public void Clear()
+        {
+            blocked_endpoints_list_.Clear();
+        }
     }
 }
