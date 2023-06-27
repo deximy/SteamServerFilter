@@ -63,7 +63,7 @@ namespace SteamServerFilter
                 if (ProcessNames.Contains(p.ProcessName))
                 {
                     processExists = true;
-                    if (!alreadyprinted) LogService.Debug("Process Exists");
+                    if (!alreadyprinted) LogService.Info("Process Exists");
                     alreadyprinted = true;
                     return;
                 }

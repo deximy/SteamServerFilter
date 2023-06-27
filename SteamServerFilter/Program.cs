@@ -113,6 +113,7 @@ namespace SteamServerFilter
             };
             reload_rules_item.Click += (sender, e) => {
                 block_rules_repo_.Clear();
+                processmode?.read_processnames_from_file(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "process_names.txt"));
                 rules_reader_service_?.ReadRulesFromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "block_rules.txt"));
             };
             return reload_rules_item;
@@ -148,6 +149,7 @@ namespace SteamServerFilter
                 Text = "进程模式",
                 Checked = true
             };
+            processmode.Enabled = true;
             process_item.Click += (sender, e) => {
                 process_item.Checked = !process_item.Checked;
             };
