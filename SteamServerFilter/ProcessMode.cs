@@ -29,6 +29,11 @@ namespace SteamServerFilter
             if (!File.Exists(path_to_file))
             {
                 File.Create(path_to_file).Close();
+                using (StreamWriter stream_writer = new StreamWriter(path_to_file))
+                {
+                    //default process is l4d2
+                    stream_writer.WriteLine("left4dead2");
+                }
             }
             using (StreamReader stream_reader = new StreamReader(path_to_file))
             {
@@ -39,7 +44,8 @@ namespace SteamServerFilter
                     {
                         continue;
                     }
-                    ProcessNames.Add(processname);
+                    if (!ProcessNames.Contains(processname))
+                        ProcessNames.Add(processname);
                 }
             }
         }
@@ -48,7 +54,7 @@ namespace SteamServerFilter
         {
             if (!Enabled)
             {
-                processExists = false;
+                processExists = true;
                 return;
             }
             var cp = Process.GetProcesses();
