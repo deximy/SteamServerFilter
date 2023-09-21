@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34004.107
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{BDC94AD4-4915-4D0C-A42D-21472041689D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hook", "Hook\Hook.csproj", "{5AC9520A-4D91-4958-A84C-3C1C2673C83F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BDC94AD4-4915-4D0C-A42D-21472041689D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDC94AD4-4915-4D0C-A42D-21472041689D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDC94AD4-4915-4D0C-A42D-21472041689D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDC94AD4-4915-4D0C-A42D-21472041689D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AC9520A-4D91-4958-A84C-3C1C2673C83F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AC9520A-4D91-4958-A84C-3C1C2673C83F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AC9520A-4D91-4958-A84C-3C1C2673C83F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AC9520A-4D91-4958-A84C-3C1C2673C83F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {524D426A-1822-4267-B948-D468F0ED73FD}
+	EndGlobalSection
+EndGlobal
