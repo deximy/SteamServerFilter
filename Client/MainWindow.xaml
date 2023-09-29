@@ -5,8 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="MainWindow" Height="450" Width="800"
+        WindowStyle="None"
+>
     <Grid>
-        
+        <wv2:WebView2 Name="web_view" />
     </Grid>
 </Window>

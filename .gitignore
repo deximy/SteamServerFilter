@@ -353,3 +353,6 @@ MigrationBackup/
 www
 .idea
 .vscode
+
+# WebView2 runtime
+Microsoft.WebView2.Runtime/
